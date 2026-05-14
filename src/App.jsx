@@ -6,9 +6,9 @@ import { client, useConfig, useElementData } from '@sigmacomputing/plugin';
 // Initialize the Sigma client
 client.config.configureEditorPanel([
   { name: "source", type: "element" },
-  { name: "retailer_column", type: "column", source: "source" },
-  { name: "value_column", type: "column", source: "source" },
+  { name: "channel_column", type: "column", source: "source" },
   { name: "share_column", type: "column", source: "source" },
+  { name: "pt_change_column", type: "column", source: "source" },
 ]);
 
 function App() {
@@ -17,10 +17,10 @@ function App() {
 
   const options = useMemo(() => {
     // 1. Transform Sigma data into Highcharts series format
-    const chartData = sigmaData[config.retailer_column]?.map((name, i) => ({
+    const chartData = sigmaData[config.channel_column]?.map((name, i) => ({
       name: name,
-      y: sigmaData[config.value_column]?.[i] || 0,
-      share: sigmaData[config.share_column]?.[i] || 0,
+      y: sigmaData[config.share_column]?.[i],
+      share: sigmaData[config.pt_change_column]?.[i],
       retailer: name,
     })) || [];
 
