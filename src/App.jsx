@@ -19,8 +19,8 @@ function App() {
     // 1. Transform Sigma data into Highcharts series format
     const chartData = sigmaData[config.channel_column]?.map((name, i) => ({
       name: name,
-      y: sigmaData[config.share_column]?.[i],
-      share: sigmaData[config.pt_change_column]?.[i],
+      share: sigmaData[config.share_column]?.[i],
+      pt_change: sigmaData[config.pt_change_column]?.[i],
       retailer: name,
     })) || [];
 
@@ -34,8 +34,8 @@ function App() {
             enabled: true,
             useHTML: true,
             format: '<b>{point.retailer}</b><br/>' +
-                    'Value: {point.y}<br/>' +
-                    'Share: {point.share}%'
+                    'Share: {point.share:.2f}<br/>%' +
+                    'Pt Change: {point.pt_change:.2f}Pt Chg'
           }
         }
       },
