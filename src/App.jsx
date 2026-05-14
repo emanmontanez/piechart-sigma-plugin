@@ -1,56 +1,52 @@
-import React from 'react';
-import Highcharts, { y } from 'highcharts';
-import {HighchartsReact} from 'highcharts-react-official';
-import {client, useConfig, useElementData}  from '@sigmacomputing/plugin'; 
+import React, { useMemo } from 'react';
+import Highcharts from 'highcharts';
+import { HighchartsReact } from 'highcharts-react-official';
+import { client, useConfig, useElementData } from '@sigmacomputing/plugin';
 
-const options = {
-  chart: {
-    type: 'pie' // This defines the chart type
-  },
-  title: {
-    text: 'Retailer Sales Distribution Hard Coded Test' // Title of the chart
-  },
-   plotOptions: {
-        pie: {
-            dataLabels: {
-                enabled: true,
-                useHTML: true, // Allows us to use <br/> for line breaks
-                //alignTo: 'plotEdges', // Helps prevent labels from overlapping
-                // This string pulls from the keys in your data array
-                format: '<b>{point.retailer}</b><br/>' +
-                        'Share: ${point.y}<br/>' +
-                        'Pt Chg.: {point.share}%'
-            }
-        }
-    },
-
-  series: [{
-    name: 'Share',
-    colorByPoint: true,
-    data: [
-            {  name: 'Amazon',
-                y: 7.7,
-                share: 7.7, 
-                Pt_Chg: 0.7, 
-                retailer: 'Amazon' 
-            },
-            {  name: 'Walmart',
-                y: 15.1,
-                share: 15.1, 
-                Pt_Chg: -1.3, 
-                retailer: 'Walmart' 
-            },
-            { name: 'Target',
-                y: 77.2,
-                share: 77.2, 
-                Pt_Chg: 0.7, 
-                retailer: 'Target' 
-            }
-        ]
-    }]
-};
+// Initialize the Sigma client
+client.config.configureEditorPanel([
+  { name: "source", type: "element" },
+  { name: "retailer_column", type: "column", source: "source" },
+  { name: "value_column", type: "column", source: "source" },
+  { name: "share_column", type: "column", source: "source" },
+]);
 
 function App() {
+  const config = useConfig();
+  const sigmaData = useElementData(config.source);
+
+  const options = useMemo(() => {
+    // 1. Transform Sigma data into Highcharts series format
+    const chartData = sigmaData[config.retailer_column]?.map((name, i) => ({
+      name: name,
+      y: sigmaData[config.value_column]?.[i] || 0,
+      share: sigmaData[config.share_column]?.[i] || 0,
+      retailer: name,
+    })) || [];
+
+    // 2. Return your existing Highcharts configuration with the dynamic data
+    return {
+      chart: { type: 'pie' },
+      title: { text: 'Retailer Sales Distribution' },
+      plotOptions: {
+        pie: {
+          dataLabels: {
+            enabled: true,
+            useHTML: true,
+            format: '<b>{point.retailer}</b><br/>' +
+                    'Value: {point.y}<br/>' +
+                    'Share: {point.share}%'
+          }
+        }
+      },
+      series: [{
+        name: 'Distribution',
+        colorByPoint: true,
+        data: chartData
+      }]
+    };
+  }, [sigmaData, config]);
+
   return (
     <HighchartsReact
       highcharts={Highcharts}
