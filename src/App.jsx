@@ -36,7 +36,7 @@ function App() {
             useHTML: true,
             format: '<b>{point.retailer}</b><br/>' +
                     'Share: {point.share:.2f}%<br/>' +
-                    'Pt Change: {point.pt_change:.2f}Pt Chg'
+                    'Pt Chg: {point.pt_change:.2f}'
           }
         }
       },
